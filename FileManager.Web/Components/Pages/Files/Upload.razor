@@ -1,0 +1,29 @@
+@page "/upload"
+
+@using FileManager.Application.Interfaces
+@using Microsoft.AspNetCore.Authorization
+
+@inject IFileService FileService
+@inject AuthenticationStateProvider AuthProvider
+@attribute [Authorize]
+
+<h3>📤 آپلود فایل</h3>
+
+<InputFile OnChange="HandleFileSelected" />
+<p>@message</p>
+
+@code {
+    private string message = "";
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+        var file = e.File;
+        if (file != null)
+        {
+            using var stream = file.OpenReadStream();
+            var id = await FileService.UploadAsync(stream, file.Name, user.Identity?.Name ?? "unknown");
+            message = $"✅ فایل آپلود شد با شناسه: {id}";
+        }
+    }
+}

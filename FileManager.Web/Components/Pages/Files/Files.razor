@@ -1,0 +1,51 @@
+@page "/files"
+
+@using FileManager.Application.DTOs
+@using FileManager.Application.Interfaces
+@using Microsoft.AspNetCore.Authorization
+
+@inject IFileService FileService
+@inject AuthenticationStateProvider AuthProvider
+
+@attribute [Authorize]
+
+<h3>📂 فایل‌های من</h3>
+@if (files == null)
+{
+    <p>در حال بارگذاری فایل‌ها...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>نام فایل</th>
+                <th>تاریخ</th>
+                <th>دانلود</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in files)
+            {
+                <tr>
+                    <td>@f.FileName</td>
+                    <td>@f.UploadedAt.ToString("yyyy-MM-dd")</td>
+                    <td><a href="/download/@f.Id" target="_blank">📥</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<FileDto>? files;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            files = await FileService.GetFilesForUserAsync(user.Identity.Name!);
+        }
+    }
+}
