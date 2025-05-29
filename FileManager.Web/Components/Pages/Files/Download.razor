@@ -1,0 +1,33 @@
+@page "/download/{Id:guid}"
+
+@using FileManager.Application.Interfaces
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.JSInterop
+
+@inject IFileService FileService
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
+@attribute [Authorize]
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var (content, fileName) = await FileService.DownloadAsync(Id, user.Identity.Name!);
+                await JS.InvokeVoidAsync("downloadFileFromStream", content, fileName);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error appropriately
+            Console.WriteLine($"Error downloading file: {ex.Message}");
+        }
+    }
+}

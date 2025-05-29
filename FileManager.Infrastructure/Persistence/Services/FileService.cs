@@ -22,8 +22,7 @@ namespace FileManager.Infrastructure.Persistence.Services
         {
             try
             {
-                //var storedPath = await _storageService.UploadAsync(fileStream, fileName);
-                var storedPath = "Filess";
+                var storedPath = await _storageService.UploadAsync(fileStream, fileName);
                 var file = new FileItem
                 {
                     Id = Guid.NewGuid(),
@@ -38,7 +37,6 @@ namespace FileManager.Infrastructure.Persistence.Services
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -55,11 +53,12 @@ namespace FileManager.Infrastructure.Persistence.Services
                 }).ToListAsync();
         }
 
-        public async Task<byte[]> DownloadAsync(Guid id, string username)
+        public async Task<(byte[] Content, string FileName)> DownloadAsync(Guid id, string username)
         {
             var file = await _dbContext.FileItems.FirstOrDefaultAsync(f => f.Id == id && f.UploadedBy == username);
             if (file == null) throw new Exception("Unauthorized or file not found.");
-            return await _storageService.DownloadAsync(file.StoredPath);
+            var content = await _storageService.DownloadAsync(file.StoredPath);
+            return (content, file.FileName);
         }
     }
 }
