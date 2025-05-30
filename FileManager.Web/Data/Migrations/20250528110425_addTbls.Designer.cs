@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FileManager.Web.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(AuthenticationDbContext))]
     [Migration("20250528110425_addTbls")]
     partial class addTbls
     {

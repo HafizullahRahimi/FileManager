@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FileManager.Infrastructure.Migrations
 {
-    [DbContext(typeof(FileDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20250528110106_addFileItesTbl")]
     partial class addFileItesTbl
     {

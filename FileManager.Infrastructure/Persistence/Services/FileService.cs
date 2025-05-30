@@ -9,10 +9,10 @@ namespace FileManager.Infrastructure.Persistence.Services
 {
     public class FileService : IFileService
     {
-        private readonly FileDbContext _dbContext;
+        private readonly ApplicationDbContext _dbContext;
         private readonly IFileStorageService _storageService;
 
-        public FileService(FileDbContext dbContext, IFileStorageService storageService)
+        public FileService(ApplicationDbContext dbContext, IFileStorageService storageService)
         {
             _dbContext = dbContext;
             _storageService = storageService;
