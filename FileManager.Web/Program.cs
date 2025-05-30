@@ -1,8 +1,6 @@
-using FileManager.Application.Interfaces;
-using FileManager.Domain.Interfaces;
-using FileManager.Infrastructure.Persistence;
-using FileManager.Infrastructure.FileSystem;
-using FileManager.Infrastructure.Persistence.Services;
+using FileManager.Persistence;
+using FileManager.Storage;
+using FileManager.Application;
 using FileManager.Web.Components;
 using FileManager.Web.Components.Account;
 using FileManager.Web.Data;
@@ -12,13 +10,13 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddStorage(builder.Configuration);
+builder.Services.AddApplication();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-
-builder.Services.AddScoped<IFileStorageService, PhysicalFileStorageService>();
-builder.Services.AddScoped<IFileService, FileService>();
 
 
 builder.Services.AddCascadingAuthenticationState();
@@ -36,10 +34,6 @@ builder.Services.AddAuthentication(options =>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<AuthenticationDbContext>(options =>
     options.UseSqlServer(connectionString));
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)

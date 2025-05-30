@@ -1,9 +1,9 @@
 @page "/files"
 
-@using FileManager.Application.DTOs
-@using FileManager.Application.Interfaces
-@using Microsoft.AspNetCore.Authorization
 @using System.Text
+@using FileManager.Application.FileServices
+@using FileManager.Application.FileServices.Modes
+@using Microsoft.AspNetCore.Authorization
 
 @inject IFileService FileService
 @inject AuthenticationStateProvider AuthProvider

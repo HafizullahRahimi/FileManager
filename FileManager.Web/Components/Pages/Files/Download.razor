@@ -1,9 +1,9 @@
 @page "/download/{Id:guid}/{Url}"
 
-@using FileManager.Application.Interfaces
+@using FileManager.Application.FileServices
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
 
 @inject IFileService FileService
 @inject AuthenticationStateProvider AuthProvider

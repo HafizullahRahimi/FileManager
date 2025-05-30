@@ -18,6 +18,8 @@
     <ProjectReference Include="..\FileManager.Application\FileManager.Application.csproj" />
     <ProjectReference Include="..\FileManager.Domain\FileManager.Domain.csproj" />
     <ProjectReference Include="..\FileManager.Infrastructure\FileManager.Infrastructure.csproj" />
+    <ProjectReference Include="..\FileManager.Persistence\FileManager.Persistence.csproj" />
+    <ProjectReference Include="..\FileManager.Storage\FileManager.Storage.csproj" />
   </ItemGroup>
 
 </Project>
