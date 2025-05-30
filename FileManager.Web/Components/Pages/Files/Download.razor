@@ -1,17 +1,24 @@
-@page "/download/{Id:guid}"
+@page "/download/{Id:guid}/{Url}"
 
 @using FileManager.Application.Interfaces
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components
 
 @inject IFileService FileService
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 @attribute [Authorize]
+
+<PageTitle>Download</PageTitle>
 
 @code {
     [Parameter]
     public Guid Id { get; set; }
+
+    [Parameter]
+    public string Url { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -22,6 +29,8 @@
             {
                 var (content, fileName) = await FileService.DownloadAsync(Id, user.Identity.Name!);
                 await JS.InvokeVoidAsync("downloadFileFromStream", content, fileName);
+                // Navigate back to the previous page or a specific route after download
+                NavigationManager.NavigateTo(Url ?? "/");
             }
         }
         catch (Exception ex)

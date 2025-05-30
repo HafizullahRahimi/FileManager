@@ -8,8 +8,10 @@
 @inject IFileService FileService
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
-
+@inject NavigationManager NavigationManager
 @attribute [Authorize]
+
+<PageTitle>Files</PageTitle>
 
 <h3>📂 فایل‌های من</h3>
 @if (files == null)
@@ -45,7 +47,10 @@ else
                         }
                     </td>
                     <td>@f.UploadedAt.ToString("yyyy-MM-dd")</td>
-                    <td><a href="/download/@f.Id" target="_blank">📥</a></td>
+                    <td>
+                        <a href="/download/@f.Id/@(Uri.EscapeDataString(NavigationManager.Uri))">📥</a>
+                        @* <button onclick="@DownloadFile(@f.Id)">📥</button> *@
+                    </td>
                 </tr>
             }
         </tbody>
@@ -95,5 +100,24 @@ else
             ".mp4" or ".avi" or ".mov" => "🎬",
             _ => "📎"
         };
+    }
+
+
+    private async Task DownloadFile(Guid fileId)
+    {
+        try
+        {
+            var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var (content, fileName) = await FileService.DownloadAsync(fileId, user.Identity.Name!);
+                await JS.InvokeVoidAsync("downloadFileFromStream", content, fileName);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error appropriately
+            Console.WriteLine($"Error downloading file: {ex.Message}");
+        }
     }
 }
