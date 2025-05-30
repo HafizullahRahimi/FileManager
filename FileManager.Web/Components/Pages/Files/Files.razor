@@ -3,9 +3,11 @@
 @using FileManager.Application.DTOs
 @using FileManager.Application.Interfaces
 @using Microsoft.AspNetCore.Authorization
+@using System.Text
 
 @inject IFileService FileService
 @inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
 
 @attribute [Authorize]
 
@@ -28,7 +30,20 @@ else
             @foreach (var f in files)
             {
                 <tr>
-                    <td>@f.FileName</td>
+                    <td>
+                        @if (f.IsImage && f.ImageContent != null)
+                        {
+                            <img src="@GetImageDataUrl(f.ImageContent, f.FileName)" alt="@f.FileName"
+                                style="max-height: 100px; max-width: 200px;" />
+                            <br />
+                            @f.FileName
+                        }
+                        else
+                        {
+                            <span class="file-icon">@GetFileIcon(f.FileName)</span>
+                            <span class="ms-2">@f.FileName</span>
+                        }
+                    </td>
                     <td>@f.UploadedAt.ToString("yyyy-MM-dd")</td>
                     <td><a href="/download/@f.Id" target="_blank">📥</a></td>
                 </tr>
@@ -47,5 +62,38 @@ else
         {
             files = await FileService.GetFilesForUserAsync(user.Identity.Name!);
         }
+    }
+
+    private string GetImageDataUrl(byte[] imageContent, string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        var mimeType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".bmp" => "image/bmp",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream"
+        };
+
+        return $"data:{mimeType};base64,{Convert.ToBase64String(imageContent)}";
+    }
+
+    private string GetFileIcon(string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        return extension switch
+        {
+            ".pdf" => "📄",
+            ".doc" or ".docx" => "📝",
+            ".xls" or ".xlsx" => "📊",
+            ".ppt" or ".pptx" => "📽️",
+            ".txt" => "📃",
+            ".zip" or ".rar" or ".7z" => "🗜️",
+            ".mp3" or ".wav" or ".ogg" => "🎵",
+            ".mp4" or ".avi" or ".mov" => "🎬",
+            _ => "📎"
+        };
     }
 }

@@ -18,6 +18,12 @@ namespace FileManager.Infrastructure.Persistence.Services
             _storageService = storageService;
         }
 
+        private bool IsImageFile(string fileName)
+        {
+            var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+            return imageExtensions.Any(ext => fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
+        }
+
         public async Task<Guid> UploadAsync(Stream fileStream, string fileName, string username)
         {
             try
@@ -43,14 +49,42 @@ namespace FileManager.Infrastructure.Persistence.Services
 
         public async Task<List<FileDto>> GetFilesForUserAsync(string username)
         {
-            return await _dbContext.FileItems
+            var files = await _dbContext.FileItems
+                .OrderByDescending(f  => f.UploadedAt)
                 .Where(f => f.UploadedBy == username)
-                .Select(f => new FileDto
+                .ToListAsync();
+
+            var result = new List<FileDto>();
+
+            foreach (var file in files)
+            {
+                var isImage = IsImageFile(file.FileName);
+                var dto = new FileDto
                 {
-                    Id = f.Id,
-                    FileName = f.FileName,
-                    UploadedAt = f.UploadedAt
-                }).ToListAsync();
+                    Id = file.Id,
+                    FileName = file.FileName,
+                    UploadedAt = file.UploadedAt,
+                    IsImage = isImage
+                };
+
+                if (isImage)
+                {
+                    try
+                    {
+                        dto.ImageContent = await _storageService.DownloadAsync(file.StoredPath);
+                    }
+                    catch (Exception)
+                    {
+                        // If we can't load the image content, we'll still return the file info
+                        // but without the image content
+                        dto.IsImage = false;
+                    }
+                }
+
+                result.Add(dto);
+            }
+
+            return result;
         }
 
         public async Task<(byte[] Content, string FileName)> DownloadAsync(Guid id, string username)
