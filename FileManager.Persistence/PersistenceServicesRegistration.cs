@@ -29,7 +29,7 @@ public static class PersistenceServicesRegistration
         options.UseSqlServer(connectionString));
 
         #region Repositories
-        services.AddScoped<IFileRepository, FileRepository>();
+        services.AddScoped<IFileItemRepository, FileItemRepository>();
         #endregion
 
 

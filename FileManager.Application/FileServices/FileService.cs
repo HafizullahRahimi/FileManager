@@ -5,10 +5,10 @@ using FileManager.Domain.Interfaces;
 namespace FileManager.Application.FileServices;
 public class FileService : IFileService
 {
-    private readonly IFileRepository _fileRepository;
+    private readonly IFileItemRepository _fileRepository;
     private readonly IFileStorageService _storageService;
 
-    public FileService(IFileRepository fileRepository, IFileStorageService storageService)
+    public FileService(IFileItemRepository fileRepository, IFileStorageService storageService)
     {
         _fileRepository = fileRepository;
         _storageService = storageService;

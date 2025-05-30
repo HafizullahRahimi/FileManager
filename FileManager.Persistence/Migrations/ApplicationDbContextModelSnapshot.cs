@@ -22,6 +22,25 @@ namespace FileManager.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("FileManager.Domain.Entities.BlogPosts.BlogPost", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlogPosts", (string)null);
+                });
+
             modelBuilder.Entity("FileManager.Domain.Entities.FileItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -45,7 +64,130 @@ namespace FileManager.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FileItems");
+                    b.ToTable("FileItems", (string)null);
+                });
+
+            modelBuilder.Entity("FileManager.Domain.Entities.Files.FileEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PathOrUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("SizeInBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("StorageType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UploadedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Files", (string)null);
+
+                    b.HasDiscriminator<string>("FileType").HasValue("FileEntity");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("FileManager.Domain.Entities.Products.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Products", (string)null);
+                });
+
+            modelBuilder.Entity("FileManager.Domain.Entities.Files.BlogPostFiles.BlogPostAttachment", b =>
+                {
+                    b.HasBaseType("FileManager.Domain.Entities.Files.FileEntity");
+
+                    b.Property<Guid>("BlogPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasIndex("BlogPostId")
+                        .IsUnique()
+                        .HasFilter("[BlogPostId] IS NOT NULL");
+
+                    b.HasDiscriminator().HasValue("BlogPostAttachment");
+                });
+
+            modelBuilder.Entity("FileManager.Domain.Entities.Files.ProductFiles.ProductImage", b =>
+                {
+                    b.HasBaseType("FileManager.Domain.Entities.Files.FileEntity");
+
+                    b.Property<int>("ImageType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasDiscriminator().HasValue("ProductImage");
+                });
+
+            modelBuilder.Entity("FileManager.Domain.Entities.Files.BlogPostFiles.BlogPostAttachment", b =>
+                {
+                    b.HasOne("FileManager.Domain.Entities.BlogPosts.BlogPost", "BlogPost")
+                        .WithOne("Attachment")
+                        .HasForeignKey("FileManager.Domain.Entities.Files.BlogPostFiles.BlogPostAttachment", "BlogPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BlogPost");
+                });
+
+            modelBuilder.Entity("FileManager.Domain.Entities.Files.ProductFiles.ProductImage", b =>
+                {
+                    b.HasOne("FileManager.Domain.Entities.Products.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("FileManager.Domain.Entities.BlogPosts.BlogPost", b =>
+                {
+                    b.Navigation("Attachment");
+                });
+
+            modelBuilder.Entity("FileManager.Domain.Entities.Products.Product", b =>
+                {
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

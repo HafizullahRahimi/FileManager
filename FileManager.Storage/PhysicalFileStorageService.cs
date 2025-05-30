@@ -7,9 +7,9 @@ namespace FileManager.Storage
     {
         //Storage/ - Root directory for all storage
         //Storage/Uploads/ - For active uploaded files
-            //documents/ - For document files(.pdf, .doc, etc.)
-            //images/ - For image files(.jpg, .png, etc.)
-            //media/ - For media files(.mp4, .mp3, etc.)
+        //documents/ - For document files(.pdf, .doc, etc.)
+        //images/ - For image files(.jpg, .png, etc.)
+        //media/ - For media files(.mp4, .mp3, etc.)
         //Storage/Temp/ - For temporary file operations
         //Storage/Archive/ - For soft-deleted files
 
