@@ -1,4 +1,4 @@
-namespace FileManager.Domain.Interfaces
+namespace FileManager.Domain.Services.Infrastructure
 {
     public interface IFileStorageService
     {

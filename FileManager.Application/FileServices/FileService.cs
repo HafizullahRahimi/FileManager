@@ -1,6 +1,6 @@
 using FileManager.Application.FileServices.Modes;
 using FileManager.Domain.Entities;
-using FileManager.Domain.Interfaces;
+using FileManager.Domain.Services.Infrastructure;
 
 namespace FileManager.Application.FileServices;
 public class FileService : IFileService

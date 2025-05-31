@@ -1,11 +1,8 @@
-﻿namespace FileManager.Domain.Files.Base;
-public abstract class BaseFile
+﻿using FileManager.Domain.Base;
+
+namespace FileManager.Domain.Files.Base;
+public abstract class BaseFile : FullAuditedEntity<Guid>
 {
-    public Guid Id { get; set; }
-    public DateTime UploadedAt { get; set; }
-    public string UploadedBy { get; set; } = string.Empty;
-
-
     public string Name { get; set; } = string.Empty; // مثلا invoice.pdf
     public string ContentType { get; set; } = string.Empty; // مثل image/png, application/pdf
     public long SizeInBytes { get; set; }

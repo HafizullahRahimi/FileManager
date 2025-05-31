@@ -1,4 +1,4 @@
-﻿using FileManager.Domain.Interfaces;
+﻿using FileManager.Domain.Services.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
