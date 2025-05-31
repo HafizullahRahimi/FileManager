@@ -1,4 +1,4 @@
-﻿namespace FileManager.Domain.Entities.Files;
+﻿namespace FileManager.Domain.Files.Base;
 public enum FileStorageType
 {
     Local,

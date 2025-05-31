@@ -1,6 +1,6 @@
-﻿using FileManager.Domain.Entities.Files.ProductFiles;
+﻿using FileManager.Domain.Files.ProductFiles;
 
-namespace FileManager.Domain.Entities.Products;
+namespace FileManager.Domain.Products;
 public class Product
 {
     public Guid Id { get; set; }

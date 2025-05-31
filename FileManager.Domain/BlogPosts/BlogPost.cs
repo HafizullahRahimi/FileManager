@@ -1,6 +1,6 @@
-﻿using FileManager.Domain.Entities.Files.BlogPostFiles;
+﻿using FileManager.Domain.Files.BlogPostFiles;
 
-namespace FileManager.Domain.Entities.BlogPosts;
+namespace FileManager.Domain.BlogPosts;
 public class BlogPost
 {
     public Guid Id { get; set; }

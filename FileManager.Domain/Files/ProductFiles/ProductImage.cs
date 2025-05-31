@@ -1,7 +1,8 @@
-﻿using FileManager.Domain.Entities.Products;
+﻿using FileManager.Domain.Files.Base;
+using FileManager.Domain.Products;
 
-namespace FileManager.Domain.Entities.Files.ProductFiles;
-public class ProductImage : FileEntity
+namespace FileManager.Domain.Files.ProductFiles;
+public class ProductImage : LocalFile
 {
     public Guid ProductId { get; set; }
     public Product? Product { get; set; }

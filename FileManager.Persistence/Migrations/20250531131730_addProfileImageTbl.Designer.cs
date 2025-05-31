@@ -4,6 +4,7 @@ using FileManager.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FileManager.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250531131730_addProfileImageTbl")]
+    partial class addProfileImageTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +70,7 @@ namespace FileManager.Persistence.Migrations
                     b.ToTable("FileItems");
                 });
 
-            modelBuilder.Entity("FileManager.Domain.Entities.Files.Base.BaseFile", b =>
+            modelBuilder.Entity("FileManager.Domain.Entities.Files.BaseFile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -125,17 +128,12 @@ namespace FileManager.Persistence.Migrations
 
             modelBuilder.Entity("FileManager.Domain.Entities.Files.BlogPostFiles.BlogPostAttachment", b =>
                 {
-                    b.HasBaseType("FileManager.Domain.Entities.Files.Base.BaseFile");
+                    b.HasBaseType("FileManager.Domain.Entities.Files.BaseFile");
 
                     b.Property<Guid>("BlogPostId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasIndex("BlogPostId")
@@ -147,15 +145,10 @@ namespace FileManager.Persistence.Migrations
 
             modelBuilder.Entity("FileManager.Domain.Entities.Files.ProductFiles.ProductImage", b =>
                 {
-                    b.HasBaseType("FileManager.Domain.Entities.Files.Base.BaseFile");
+                    b.HasBaseType("FileManager.Domain.Entities.Files.BaseFile");
 
                     b.Property<int>("ImageType")
                         .HasColumnType("int");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -167,7 +160,7 @@ namespace FileManager.Persistence.Migrations
 
             modelBuilder.Entity("FileManager.Domain.Entities.Files.UserFiles.ProfileImage", b =>
                 {
-                    b.HasBaseType("FileManager.Domain.Entities.Files.Base.BaseFile");
+                    b.HasBaseType("FileManager.Domain.Entities.Files.BaseFile");
 
                     b.Property<byte[]>("Data")
                         .IsRequired()

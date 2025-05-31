@@ -1,4 +1,4 @@
-﻿namespace FileManager.Domain.Entities.Files.ProductFiles;
+﻿namespace FileManager.Domain.Files.ProductFiles;
 public enum ProductImageType
 {
     Main = 1,

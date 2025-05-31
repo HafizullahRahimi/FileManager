@@ -1,6 +1,6 @@
+using FileManager.Domain.BlogPosts;
 using FileManager.Domain.Entities;
-using FileManager.Domain.Entities.BlogPosts;
-using FileManager.Domain.Entities.Products;
+using FileManager.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 
 namespace FileManager.Persistence;
