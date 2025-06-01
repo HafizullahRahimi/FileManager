@@ -1,10 +1,9 @@
-﻿using FileManager.Domain.Files.BlogPostFiles;
+﻿using FileManager.Domain.Base;
+using FileManager.Domain.BlogPostAttachments;
 
 namespace FileManager.Domain.BlogPosts;
-public class BlogPost
+public class BlogPost : FullAuditedEntity<Guid>
 {
-    public Guid Id { get; set; }
-
     public string Title { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
 

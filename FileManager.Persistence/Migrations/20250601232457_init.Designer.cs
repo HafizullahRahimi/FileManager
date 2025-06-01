@@ -4,6 +4,7 @@ using FileManager.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FileManager.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250601232457_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -252,40 +255,6 @@ namespace FileManager.Persistence.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("FileManager.Domain.ProfileImages.ProfileImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedUtcDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DatabaseFileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ModifiedUtcDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DatabaseFileId")
-                        .IsUnique();
-
-                    b.ToTable("ProfileImages");
-                });
-
             modelBuilder.Entity("FileManager.Domain.Files.Base.CloudFile", b =>
                 {
                     b.HasBaseType("FileManager.Domain.Files.Base.BaseFile");
@@ -357,17 +326,6 @@ namespace FileManager.Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("FileManager.Domain.ProfileImages.ProfileImage", b =>
-                {
-                    b.HasOne("FileManager.Domain.Files.Base.DatabaseFile", "DatabaseFile")
-                        .WithOne("ProfileImage")
-                        .HasForeignKey("FileManager.Domain.ProfileImages.ProfileImage", "DatabaseFileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DatabaseFile");
-                });
-
             modelBuilder.Entity("FileManager.Domain.BlogPosts.BlogPost", b =>
                 {
                     b.Navigation("Attachment");
@@ -376,11 +334,6 @@ namespace FileManager.Persistence.Migrations
             modelBuilder.Entity("FileManager.Domain.Products.Product", b =>
                 {
                     b.Navigation("ProductImages");
-                });
-
-            modelBuilder.Entity("FileManager.Domain.Files.Base.DatabaseFile", b =>
-                {
-                    b.Navigation("ProfileImage");
                 });
 
             modelBuilder.Entity("FileManager.Domain.Files.Base.LocalFile", b =>

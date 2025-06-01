@@ -1,6 +1,5 @@
 ﻿using FileManager.Domain.Entities;
-using FileManager.Domain.Files.BlogPostFiles;
-using FileManager.Domain.Files.ProductFiles;
+using FileManager.Domain.Files.Repositories;
 using FileManager.Persistence.Repositories;
 using FileManager.Persistence.Repositories.Files;
 using Microsoft.EntityFrameworkCore;
@@ -36,13 +35,10 @@ public static class PersistenceServicesRegistration
         #endregion
 
         #region Files Repositories
-        services.AddScoped<IBlogPostAttachmentRepository, BlogPostAttachmentRepository>();
-        services.AddScoped<IProductImageRepository, ProductImageRepository>();
-        services.AddScoped<IProfileImageRepository, ProfileImageRepository>();
+        services.AddScoped<ILocalFileRepository, LocalFileRepository>();
+        services.AddScoped<IDatabaseFileRepository, DatabaseFileRepository>();
+        services.AddScoped<ICloudFileRepository, CloudFileRepository>();
         #endregion
-
-
-
 
         return services;
     }

@@ -12,7 +12,7 @@ public static class StorageServicesRegistration
         //    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 
-        services.AddScoped<IFileStorageService, PhysicalFileStorageService>();
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
 
         return services;
