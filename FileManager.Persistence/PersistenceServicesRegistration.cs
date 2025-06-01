@@ -28,8 +28,8 @@ public static class PersistenceServicesRegistration
         //    .AddInterceptors(sp.GetRequiredService<ModifiedInterceptor>())
         //    );
 
-        services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        services.AddDbContextFactory<ApplicationDbContext>(options =>
+           options.UseSqlServer(connectionString));
 
         #region Repositories
         services.AddScoped<IFileItemRepository, FileItemRepository>();

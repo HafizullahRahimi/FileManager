@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FileManager.Persistence.Repositories.Files;
 public class ProfileImageRepository : Repository<ProfileImage>, IProfileImageRepository
 {
-    protected ProfileImageRepository(IDbContextFactory<ApplicationDbContext> dbcontextFactory) : base(dbcontextFactory)
+    public ProfileImageRepository(IDbContextFactory<ApplicationDbContext> dbcontextFactory) : base(dbcontextFactory)
     {
     }
 }

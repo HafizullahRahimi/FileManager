@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FileManager.Persistence.Repositories.Files;
 public class BlogPostAttachmentRepository : Repository<BlogPostAttachment>, IBlogPostAttachmentRepository
 {
-    protected BlogPostAttachmentRepository(IDbContextFactory<ApplicationDbContext> dbcontextFactory) : base(dbcontextFactory)
+    public BlogPostAttachmentRepository(IDbContextFactory<ApplicationDbContext> dbcontextFactory) : base(dbcontextFactory)
     {
     }
 }

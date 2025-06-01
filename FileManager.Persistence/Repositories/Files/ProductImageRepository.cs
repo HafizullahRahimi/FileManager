@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FileManager.Persistence.Repositories.Files;
 public class ProductImageRepository : Repository<ProductImage>, IProductImageRepository
 {
-    protected ProductImageRepository(IDbContextFactory<ApplicationDbContext> dbcontextFactory) : base(dbcontextFactory)
+    public ProductImageRepository(IDbContextFactory<ApplicationDbContext> dbcontextFactory) : base(dbcontextFactory)
     {
     }
 }
