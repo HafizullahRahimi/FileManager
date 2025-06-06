@@ -1,6 +1,6 @@
-namespace FileManager.Domain.Services.Infrastructure
+namespace FileManager.Domain.Services.Infrastructure.Storage
 {
-    public interface IFileStorageService
+    public interface IFileStorageService1
     {
         Task<string> UploadAsync(Stream fileStream, string fileName);
         Task<byte[]> DownloadAsync(string storedPath);

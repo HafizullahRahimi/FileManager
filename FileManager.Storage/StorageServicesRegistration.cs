@@ -1,4 +1,5 @@
-﻿using FileManager.Domain.Services.Infrastructure;
+﻿using FileManager.Domain.Services.Infrastructure.Storage;
+using FileManager.Storage.FileStorageServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,9 +12,12 @@ public static class StorageServicesRegistration
         //    .GetConnectionString("DefaultConnection") ??
         //    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-
-        services.AddScoped<IFileStorageService, LocalFileStorageService>();
-
+        #region Services
+        services.AddScoped<IFileStorageService1, LocalFileStorageService1>();
+        services.AddScoped<ILocalFileStorageService, LocalFileStorageService>();
+        services.AddScoped<IDatabaseFileStorageService, DatabaseFileStorageService>();
+        services.AddScoped<ICloudFileStorageService, CloudFileStorageService>();
+        #endregion
 
         return services;
     }

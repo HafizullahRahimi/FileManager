@@ -1,0 +1,104 @@
+@page "/ProfileImages"
+
+@using System.Text
+@using FileManager.Application.FileServices.Modes
+@using FileManager.Application.ProfileImageServices
+@using FileManager.Domain.ProfileImages
+@using Microsoft.AspNetCore.Authorization
+
+@inject IProfileImageService ProfileImageService
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<PageTitle>Files</PageTitle>
+
+<h3>ProfileImages</h3>
+@if (profileImages == null)
+{
+    <p>در حال بارگذاری فایل‌ها...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>نام فایل</th>
+                <th>تاریخ</th>
+                <th>دانلود</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pj in profileImages)
+            {
+                <tr>
+                    <td>
+                        @pj.UserName
+
+
+
+                      @*   <img src="@GetImageDataUrl(f.ImageContent, f.FileName)" alt="@f.FileName"
+                             style="max-height: 100px; max-width: 200px;" />
+                        <br />
+                        @f.FileName *@
+
+                    </td>
+                    <td>
+                        @pj.CreatedUtcDate.ToString("yyyy-MM-dd HH:mm:ss")
+                    </td>
+                    <td>
+                        @* <a href="/download/@f.Id/@(Uri.EscapeDataString(NavigationManager.Uri))">📥</a> *@
+                        @* <button onclick="@DownloadFile(@f.Id)">📥</button> *@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ProfileImage>? profileImages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            profileImages = await ProfileImageService.GetProfileImagesForUserAsync(user.Identity.Name!, CancellationToken.None);
+        }
+    }
+
+    private string GetImageDataUrl(byte[] imageContent, string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        var mimeType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".bmp" => "image/bmp",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream"
+        };
+
+        return $"data:{mimeType};base64,{Convert.ToBase64String(imageContent)}";
+    }
+
+    private string GetFileIcon(string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        return extension switch
+        {
+            ".pdf" => "📄",
+            ".doc" or ".docx" => "📝",
+            ".xls" or ".xlsx" => "📊",
+            ".ppt" or ".pptx" => "📽️",
+            ".txt" => "📃",
+            ".zip" or ".rar" or ".7z" => "🗜️",
+            ".mp3" or ".wav" or ".ogg" => "🎵",
+            ".mp4" or ".avi" or ".mov" => "🎬",
+            _ => "📎"
+        };
+    }
+}

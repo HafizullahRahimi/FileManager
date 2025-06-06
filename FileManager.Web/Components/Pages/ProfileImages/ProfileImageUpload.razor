@@ -1,0 +1,46 @@
+@page "/ProfileImages/Upload"
+
+@using FileManager.Application.ProfileImageServices
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IProfileImageService ProfileImageService
+@inject AuthenticationStateProvider AuthProvider
+@attribute [Authorize]
+
+<PageTitle>Upload profile image</PageTitle>
+
+<h3>📤 Upload profile image</h3>
+
+<InputFile OnChange="HandleFileSelected" MaxFileSize="52428800" />
+<p>@message</p>
+
+@code {
+    private string message = "";
+    private const long MaxFileSize = 50 * 1024 * 1024; // 50MB in bytes
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+        var file = e.File;
+        if (file != null)
+        {
+            try
+            {
+                if (file.Size > MaxFileSize)
+                {
+                    message = $"❌ حجم فایل بیش از حد مجاز است. حداکثر حجم مجاز: {MaxFileSize / 1024 / 1024}MB";
+                    return;
+                }
+
+                using var stream = file.OpenReadStream(MaxFileSize);
+                var id = await ProfileImageService.UploadAsync(stream, file.Name, user.Identity?.Name ?? "unknown",CancellationToken.None);
+                message = $"✅ فایل آپلود شد با شناسه: {id}";
+            }
+            catch (Exception ex)
+            {
+                message = $"❌ خطا در آپلود فایل: {ex.Message}";
+            }
+        }
+    }
+}

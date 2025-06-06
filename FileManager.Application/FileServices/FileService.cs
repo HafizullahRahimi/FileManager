@@ -1,14 +1,14 @@
 using FileManager.Application.FileServices.Modes;
 using FileManager.Domain.Entities;
-using FileManager.Domain.Services.Infrastructure;
+using FileManager.Domain.Services.Infrastructure.Storage;
 
 namespace FileManager.Application.FileServices;
 public class FileService : IFileService
 {
     private readonly IFileItemRepository _fileRepository;
-    private readonly IFileStorageService _storageService;
+    private readonly IFileStorageService1 _storageService;
 
-    public FileService(IFileItemRepository fileRepository, IFileStorageService storageService)
+    public FileService(IFileItemRepository fileRepository, IFileStorageService1 storageService)
     {
         _fileRepository = fileRepository;
         _storageService = storageService;
