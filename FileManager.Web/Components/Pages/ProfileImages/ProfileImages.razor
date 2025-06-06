@@ -34,14 +34,10 @@ else
             {
                 <tr>
                     <td>
-                        @pj.UserName
-
-
-
-                      @*   <img src="@GetImageDataUrl(f.ImageContent, f.FileName)" alt="@f.FileName"
+                        <img src="@GetImageDataUrl(pj.DatabaseFile.Data, pj.DatabaseFile.Name)" alt="@pj.DatabaseFile.Name"
                              style="max-height: 100px; max-width: 200px;" />
                         <br />
-                        @f.FileName *@
+                        @pj.DatabaseFile.Name
 
                     </td>
                     <td>

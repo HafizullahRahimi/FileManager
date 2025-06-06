@@ -11,6 +11,6 @@ public class LocalFile : BaseFile
         StorageType = FileStorageType.Local;
     }
 
-    public ProductImage? ProductImage { get; set; } // Optional
-    public BlogPostAttachment? BlogPostAttachment { get; set; } // Optional
+    public virtual ProductImage? ProductImage { get; set; } // Optional
+    public virtual BlogPostAttachment? BlogPostAttachment { get; set; } // Optional
 }

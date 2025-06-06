@@ -14,5 +14,5 @@ public class DatabaseFile : BaseFile
         StorageType = FileStorageType.Database;
     }
 
-    public ProfileImage? ProfileImage { get; set; } // Optional
+    public virtual ProfileImage? ProfileImage { get; set; } // Optional
 }

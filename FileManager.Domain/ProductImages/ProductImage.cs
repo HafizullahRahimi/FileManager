@@ -7,8 +7,8 @@ public class ProductImage : FullAuditedEntity<Guid>
     public ProductImageType ImageType { get; set; } = ProductImageType.Gallery;
 
     public Guid ProductId { get; set; }
-    public Product Product { get; set; } = null!; // required
+    public virtual Product Product { get; set; } = null!; // required
 
     public Guid LocalFileId { get; set; }
-    public LocalFile LocalFile { get; set; } = null!; // required
+    public virtual LocalFile LocalFile { get; set; } = null!; // required
 }

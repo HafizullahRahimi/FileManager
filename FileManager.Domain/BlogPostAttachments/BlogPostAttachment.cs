@@ -8,8 +8,8 @@ public class BlogPostAttachment : FullAuditedEntity<Guid>
     public string? Description { get; set; }
 
     public Guid BlogPostId { get; set; }
-    public BlogPost? BlogPost { get; set; }
+    public virtual BlogPost? BlogPost { get; set; }
 
     public Guid LocalFileId { get; set; }
-    public LocalFile LocalFile { get; set; } = null!; //required 
+    public virtual LocalFile LocalFile { get; set; } = null!; //required 
 }

@@ -6,5 +6,5 @@ public class Product : FullAuditedEntity<Guid>
 {
     public string Name { get; set; } = string.Empty;
 
-    public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>(); // required
+    public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>(); // required
 }
