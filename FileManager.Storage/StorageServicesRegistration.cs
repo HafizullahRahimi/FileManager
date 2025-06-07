@@ -1,5 +1,6 @@
 ﻿using FileManager.Domain.Services.Infrastructure.Storage;
 using FileManager.Storage.FileStorageServices;
+using FileManager.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,9 @@ public static class StorageServicesRegistration
         services.AddScoped<ILocalFileStorageService, LocalFileStorageService>();
         services.AddScoped<IDatabaseFileStorageService, DatabaseFileStorageService>();
         services.AddScoped<ICloudFileStorageService, CloudFileStorageService>();
+
+        services.AddScoped<IFileTypeService, FileTypeService>();
+
         #endregion
 
         return services;
