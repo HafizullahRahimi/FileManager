@@ -1,6 +1,6 @@
 ﻿using FileManager.Domain.Files;
 
-namespace FileManager.Domain.Services.Infrastructure.Storage;
+namespace FileManager.Domain.Services.Infrastructure.Storage.Models;
 public class FileUploadRequest
 {
     public string Name { get; set; } = string.Empty;

@@ -1,6 +1,7 @@
 ﻿using FileManager.Domain.Files;
 using FileManager.Domain.Files.Repositories;
 using FileManager.Domain.Services.Infrastructure.Storage;
+using FileManager.Domain.Services.Infrastructure.Storage.Models;
 using Microsoft.Extensions.Hosting;
 
 namespace FileManager.Storage.FileStorageServices;

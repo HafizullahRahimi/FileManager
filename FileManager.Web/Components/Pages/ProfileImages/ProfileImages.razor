@@ -44,7 +44,7 @@ else
                         @pj.CreatedUtcDate.ToString("yyyy-MM-dd HH:mm:ss")
                     </td>
                     <td>
-                        @* <a href="/download/@f.Id/@(Uri.EscapeDataString(NavigationManager.Uri))">📥</a> *@
+                        <a href="/ProfileImages/Download/@pj.DatabaseFile.Id/@(Uri.EscapeDataString(NavigationManager.Uri))">📥</a>
                         @* <button onclick="@DownloadFile(@f.Id)">📥</button> *@
                     </td>
                 </tr>

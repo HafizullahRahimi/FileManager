@@ -1,5 +1,6 @@
 ﻿using FileManager.Domain.Files;
 using FileManager.Domain.Services.Infrastructure.Storage;
+using FileManager.Domain.Services.Infrastructure.Storage.Models;
 
 namespace FileManager.Storage.FileStorageServices;
 public class CloudFileStorageService : ICloudFileStorageService

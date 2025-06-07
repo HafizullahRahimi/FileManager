@@ -1,6 +1,7 @@
 ﻿using FileManager.Domain.Files;
 using FileManager.Domain.Files.Repositories;
 using FileManager.Domain.Services.Infrastructure.Storage;
+using FileManager.Domain.Services.Infrastructure.Storage.Models;
 
 namespace FileManager.Storage.FileStorageServices;
 public class DatabaseFileStorageService : IDatabaseFileStorageService
@@ -13,30 +14,40 @@ public class DatabaseFileStorageService : IDatabaseFileStorageService
     }
     public async Task<DatabaseFile> UploadAsync(FileUploadRequest request, CancellationToken cancellationToken)
     {
-        var file = new DatabaseFile
+        try
         {
-            Name = request.Name,
-            ContentType = GetContentType(request.Name),
-            SizeInBytes = GetSizeInBytes(request.Content),
-            Data = StreamToByteArray(request.Content)
-        };
+            var (data, size) = await ReadStreamOnceAsync(request.Content, cancellationToken);
 
-        return await repository.CreateAsync(file, cancellationToken);
+            var file = new DatabaseFile
+            {
+                Name = request.Name,
+                ContentType = GetContentType(request.Name),
+                SizeInBytes = size,
+                Data = data
+            };
+
+            return await repository.CreateAsync(file, cancellationToken);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
     }
     public async Task<DatabaseFile?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         await repository.GetByIdAsync(id, cancellationToken);
     public async Task DeleteAsync(DatabaseFile file, CancellationToken cancellationToken) =>
         await repository.DeleteAsync(file, cancellationToken);
 
-
-    public async Task<byte[]> DownloadAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<FileData?> DownloadAsync(Guid id, CancellationToken cancellationToken)
     {
-        var file = await GetByIdAsync(id, cancellationToken)
-                   ?? throw new FileNotFoundException("File not found in database.");
+        var file = await GetByIdAsync(id, cancellationToken);
+        if (file != null)
+            return new FileData(file.Data, file.Name);
 
-        return file.Data;
+        return null;
+        throw new FileNotFoundException($"File with ID {id} not found.");
     }
-
 
     private string GetContentType(string fileName)
     {
@@ -53,23 +64,10 @@ public class DatabaseFileStorageService : IDatabaseFileStorageService
         };
     }
 
-    private long GetSizeInBytes(Stream fileStream)
+    private static async Task<(byte[] Data, long Size)> ReadStreamOnceAsync(Stream stream, CancellationToken cancellationToken)
     {
-        fileStream.Seek(0, SeekOrigin.Begin);
-        using (var memoryStream = new MemoryStream())
-        {
-            fileStream.CopyTo(memoryStream);
-            return memoryStream.Length;
-        }
-    }
-
-    private static byte[] StreamToByteArray(Stream fileStream)
-    {
-        fileStream.Seek(0, SeekOrigin.Begin);
-        using (var memoryStream = new MemoryStream())
-        {
-            fileStream.CopyTo(memoryStream);
-            return memoryStream.ToArray();
-        }
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream, cancellationToken);
+        return (memoryStream.ToArray(), memoryStream.Length);
     }
 }

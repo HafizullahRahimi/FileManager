@@ -1,12 +1,10 @@
-@page "/download/{Id:guid}/{Url}"
+@page "/ProfileImages/Download/{Id:guid}/{Url}"
 
-@using FileManager.Application.FileServices
+@using FileManager.Application.ProfileImageServices
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 
-@inject IFileService FileService
-@inject AuthenticationStateProvider AuthProvider
+@inject IProfileImageService ProfileImageService
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @attribute [Authorize]
@@ -24,14 +22,18 @@
     {
         try
         {
-            var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
-            if (user.Identity?.IsAuthenticated == true)
+            var fileData = await ProfileImageService.DownloadAsync(Id, CancellationToken.None);
+
+            if (fileData == null)
             {
-                var (content, fileName) = await FileService.DownloadAsync(Id, user.Identity.Name!);
-                await JS.InvokeVoidAsync("downloadFileFromStream", content, fileName);
+                // Handle case where file data is not found
+                Console.WriteLine("File not found.");
+                return;
+            }
+
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileData.Content, fileData.FileName);
                 // Navigate back to the previous page or a specific route after download
                 NavigationManager.NavigateTo(Url ?? "/");
-            }
         }
         catch (Exception ex)
         {
