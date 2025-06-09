@@ -3,6 +3,7 @@ using FileManager.Domain.Entities;
 using FileManager.Domain.Files.ProductFiles;
 using FileManager.Domain.Files.Repositories;
 using FileManager.Domain.ProfileImages;
+using FileManager.Persistence.Interceptors;
 using FileManager.Persistence.Repositories;
 using FileManager.Persistence.Repositories.Files;
 using Microsoft.EntityFrameworkCore;
@@ -18,21 +19,22 @@ public static class PersistenceServicesRegistration
             .GetConnectionString("DefaultConnection") ??
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        //services.AddSingleton<SoftDeletedInterceptor>();
-        //services.AddSingleton<CreatedInterceptor>();
-        //services.AddSingleton<ModifiedInterceptor>();
+        services.AddSingleton<SoftDeletedInterceptor>();
+        services.AddSingleton<CreatedInterceptor>();
+        services.AddSingleton<ModifiedInterceptor>();
 
-        //services.AddDbContextFactory<ApplicationDbContext>(
-        //    (sp, option) => option
-        //    .UseSqlServer(connectionString)
-        //    .AddInterceptors(sp.GetRequiredService<SoftDeletedInterceptor>())
-        //    .AddInterceptors(sp.GetRequiredService<CreatedInterceptor>())
-        //    .AddInterceptors(sp.GetRequiredService<ModifiedInterceptor>())
-        //    );
+        services.AddDbContextFactory<ApplicationDbContext>(
+            (sp, option) => option
+            .UseLazyLoadingProxies()
+            .UseSqlServer(connectionString)
+            .AddInterceptors(sp.GetRequiredService<SoftDeletedInterceptor>())
+            .AddInterceptors(sp.GetRequiredService<CreatedInterceptor>())
+            .AddInterceptors(sp.GetRequiredService<ModifiedInterceptor>())
+            );
 
-        services.AddDbContextFactory<ApplicationDbContext>(options => 
-            options.UseLazyLoadingProxies()
-           .UseSqlServer(connectionString));
+        //services.AddDbContextFactory<ApplicationDbContext>(options => 
+        //    options.UseLazyLoadingProxies()
+        //   .UseSqlServer(connectionString));
 
         #region Repositories
         services.AddScoped<IFileItemRepository, FileItemRepository>();
