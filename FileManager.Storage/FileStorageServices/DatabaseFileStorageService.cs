@@ -16,14 +16,14 @@ public class DatabaseFileStorageService : IDatabaseFileStorageService
     {
         try
         {
-            var (data, size) = await ReadStreamOnceAsync(request.Content, cancellationToken);
+            var bytes = await GetBytesAsync(request.FileStream, cancellationToken);
 
             var file = new DatabaseFile
             {
-                Name = request.Name,
-                ContentType = GetContentType(request.Name),
-                SizeInBytes = size,
-                Data = data
+                Name = request.FileName,
+                ContentType = request.ContentType,
+                SizeInBytes = request.FileStream.Length,
+                Data = bytes
             };
 
             return await repository.CreateAsync(file, cancellationToken);
@@ -39,35 +39,10 @@ public class DatabaseFileStorageService : IDatabaseFileStorageService
     public async Task DeleteAsync(DatabaseFile file, CancellationToken cancellationToken) =>
         await repository.DeleteAsync(file, cancellationToken);
 
-    public async Task<FileData?> DownloadAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var file = await GetByIdAsync(id, cancellationToken);
-        if (file != null)
-            return new FileData(file.Data, file.Name);
-
-        return null;
-        throw new FileNotFoundException($"File with ID {id} not found.");
-    }
-
-    private string GetContentType(string fileName)
-    {
-        var ext = Path.GetExtension(fileName).ToLowerInvariant();
-        return ext switch
-        {
-            ".pdf" => "application/pdf",
-            ".doc" or ".docx" => "application/msword",
-            ".jpg" or ".jpeg" => "image/jpeg",
-            ".png" => "image/png",
-            ".mp4" => "video/mp4",
-            ".mp3" => "audio/mpeg",
-            _ => "application/octet-stream"
-        };
-    }
-
-    private static async Task<(byte[] Data, long Size)> ReadStreamOnceAsync(Stream stream, CancellationToken cancellationToken)
+    private static async Task<byte[]> GetBytesAsync(Stream stream, CancellationToken cancellationToken)
     {
         using var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream, cancellationToken);
-        return (memoryStream.ToArray(), memoryStream.Length);
+        return memoryStream.ToArray();
     }
 }

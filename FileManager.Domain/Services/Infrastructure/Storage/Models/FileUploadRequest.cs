@@ -3,8 +3,8 @@
 namespace FileManager.Domain.Services.Infrastructure.Storage.Models;
 public class FileUploadRequest
 {
-    public string Name { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
     public string ContentType { get; set; } = string.Empty;
-    public Stream Content { get; set; } = Stream.Null;
+    public Stream FileStream { get; set; } = Stream.Null;
     //public FileStorageType StorageType { get; set; }
 }

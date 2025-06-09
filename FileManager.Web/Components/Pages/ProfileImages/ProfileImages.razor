@@ -3,49 +3,51 @@
 @using System.Text
 @using FileManager.Application.FileServices.Modes
 @using FileManager.Application.ProfileImageServices
+@using FileManager.Application.ProfileImageServices.Models
 @using FileManager.Domain.ProfileImages
 @using Microsoft.AspNetCore.Authorization
 
+@attribute [Authorize]
 @inject IProfileImageService ProfileImageService
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
-@inject NavigationManager NavigationManager
-@attribute [Authorize]
 
 <PageTitle>Files</PageTitle>
 
 <h3>ProfileImages</h3>
-@if (profileImages == null)
+@if (images == null)
 {
-    <p>در حال بارگذاری فایل‌ها...</p>
+    <p>در حال بارگذاری عکس ‌ها...</p>
 }
 else
 {
     <table class="table">
         <thead>
             <tr>
-                <th>نام فایل</th>
+                <th>نام</th>
+                <th>عکس</th>
                 <th>تاریخ</th>
                 <th>دانلود</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var pj in profileImages)
+            @foreach (var image in images)
             {
                 <tr>
                     <td>
-                        <img src="@GetImageDataUrl(pj.DatabaseFile.Data, pj.DatabaseFile.Name)" alt="@pj.DatabaseFile.Name"
+                        @image.Name
+                    </td>
+                    <td>
+                        <img src="@image.Url" alt="@image.Name"
                              style="max-height: 100px; max-width: 200px;" />
                         <br />
-                        @pj.DatabaseFile.Name
+                    </td>
 
+                    <td>
+                        @image.CreatedUtcDate.ToString("yyyy-MM-dd HH:mm:ss")
                     </td>
                     <td>
-                        @pj.CreatedUtcDate.ToString("yyyy-MM-dd HH:mm:ss")
-                    </td>
-                    <td>
-                        <a href="/ProfileImages/Download/@pj.DatabaseFile.Id/@(Uri.EscapeDataString(NavigationManager.Uri))">📥</a>
-                        @* <button onclick="@DownloadFile(@f.Id)">📥</button> *@
+                        <button class="btn btn-link" @onclick="() => DownloadFileAsync(image.Id)">📥</button>
                     </td>
                 </tr>
             }
@@ -54,47 +56,34 @@ else
 }
 
 @code {
-    private List<ProfileImage>? profileImages;
+    private List<ProfileImageDto>? images;
 
     protected override async Task OnInitializedAsync()
     {
         var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
         if (user.Identity?.IsAuthenticated == true)
         {
-            profileImages = await ProfileImageService.GetProfileImagesForUserAsync(user.Identity.Name!, CancellationToken.None);
+            images = await ProfileImageService.GetProfileImagesForUserAsync(user.Identity.Name!, CancellationToken.None);
         }
     }
 
-    private string GetImageDataUrl(byte[] imageContent, string fileName)
+    private async Task DownloadFileAsync(Guid id)
     {
-        var extension = Path.GetExtension(fileName).ToLowerInvariant();
-        var mimeType = extension switch
+        try
         {
-            ".jpg" or ".jpeg" => "image/jpeg",
-            ".png" => "image/png",
-            ".gif" => "image/gif",
-            ".bmp" => "image/bmp",
-            ".webp" => "image/webp",
-            _ => "application/octet-stream"
-        };
-
-        return $"data:{mimeType};base64,{Convert.ToBase64String(imageContent)}";
-    }
-
-    private string GetFileIcon(string fileName)
-    {
-        var extension = Path.GetExtension(fileName).ToLowerInvariant();
-        return extension switch
+            (byte[] content, string fileName) = await ProfileImageService.DownloadAsync(id, CancellationToken.None);
+            if (fileName == string.Empty)
+            {
+                // Handle case where file data is not found
+                Console.WriteLine("File not found.");
+                return;
+            }
+            await JS.InvokeVoidAsync("downloadFileFromStream", content, fileName);
+        }
+        catch (Exception ex)
         {
-            ".pdf" => "📄",
-            ".doc" or ".docx" => "📝",
-            ".xls" or ".xlsx" => "📊",
-            ".ppt" or ".pptx" => "📽️",
-            ".txt" => "📃",
-            ".zip" or ".rar" or ".7z" => "🗜️",
-            ".mp3" or ".wav" or ".ogg" => "🎵",
-            ".mp4" or ".avi" or ".mov" => "🎬",
-            _ => "📎"
-        };
+            // Handle error appropriately
+            Console.WriteLine($"Error downloading file: {ex.Message}");
+        }
     }
 }

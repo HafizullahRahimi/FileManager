@@ -21,20 +21,20 @@ public class LocalFileStorageService : ILocalFileStorageService
     }
     public async Task<LocalFile> UploadAsync(FileUploadRequest request, CancellationToken cancellationToken)
     {
-        string fileType = DetermineFileType(request.Name);
+        string fileType = DetermineFileType(request.FileName);
         string targetDir = Path.Combine(storageRootPath, uploadsDir, fileType);
 
-        string fileName = GenerateUniqueFileName(request.Name);
+        string fileName = GenerateUniqueFileName(request.FileName);
         var filePath = Path.Combine(targetDir, fileName);
 
         using var fileStream = new FileStream(filePath, FileMode.Create);
-        await request.Content.CopyToAsync(fileStream, cancellationToken);
+        await request.FileStream.CopyToAsync(fileStream, cancellationToken);
 
         var localFile = new LocalFile
         {
-            Name = request.Name,
+            Name = request.FileName,
             ContentType = request.ContentType,
-            SizeInBytes = request.Content.Length,
+            SizeInBytes = request.FileStream.Length,
             Path = filePath,
             StorageType = FileStorageType.Local
         };
