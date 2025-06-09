@@ -25,6 +25,7 @@ else
             <tr>
                 <th>نام فایل</th>
                 <th>تاریخ</th>
+                <th>دانلود از صفحه دانلود</th>
                 <th>دانلود</th>
             </tr>
         </thead>
@@ -49,7 +50,9 @@ else
                     <td>@f.UploadedAt.ToString("yyyy-MM-dd")</td>
                     <td>
                         <a href="/download/@f.Id/@(Uri.EscapeDataString(NavigationManager.Uri))">📥</a>
-                        @* <button onclick="@DownloadFile(@f.Id)">📥</button> *@
+                    </td>
+                    <td>
+                        <button class="btn btn-link" @onclick="() => DownloadImageAsync(f.Id)">📥</button>
                     </td>
                 </tr>
             }
@@ -103,7 +106,7 @@ else
     }
 
 
-    private async Task DownloadFile(Guid fileId)
+    private async Task DownloadImageAsync(Guid fileId)
     {
         try
         {

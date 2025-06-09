@@ -1,0 +1,42 @@
+﻿@page "/download/{Id:guid}/{Url}"
+
+@using FileManager.Application.FileServices
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+
+@inject IFileService FileService
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<PageTitle>Download</PageTitle>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    [Parameter]
+    public string Url { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var (content, fileName) = await FileService.DownloadAsync(Id, user.Identity.Name!);
+                await JS.InvokeVoidAsync("downloadFileFromStream", content, fileName);
+                // Navigate back to the previous page or a specific route after download
+                NavigationManager.NavigateTo(Url ?? "/");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error appropriately
+            Console.WriteLine($"Error downloading file: {ex.Message}");
+        }
+    }
+}
