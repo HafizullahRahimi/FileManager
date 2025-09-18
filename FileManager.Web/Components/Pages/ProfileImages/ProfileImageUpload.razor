@@ -6,41 +6,237 @@
 
 @inject IProfileImageService ProfileImageService
 @inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
 @attribute [Authorize]
 
 <PageTitle>Upload profile image</PageTitle>
 
-<h3>📤 Upload profile image</h3>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">📤 آپلود تصویر پروفایل</h3>
+                </div>
+                <div class="card-body">
+                    <div class="border border-2 border-dashed rounded p-4 text-center mb-3">
+                        <InputFile id="fileInput"
+                                   OnChange="HandleFileSelected"
+                                   MaxFileSize="@MaxFileSize"
+                                   accept="image/*"
+                                   disabled="@isUploading"
+                                   class="form-control" />
+                        <small class="text-muted mt-2 d-block">
+                            📋 فرمت‌های پشتیبانی شده: JPG, PNG, GIF, WebP | حداکثر حجم: @(MaxFileSize / 1024 / 1024)MB
+                        </small>
+                    </div>
 
-<InputFile OnChange="HandleFileSelected" MaxFileSize="52428800" />
-<p>@message</p>
+                    @if (selectedFile != null)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">🖼️ پیش‌نمایش فایل انتخاب شده</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 text-center mb-3">
+                                        <img src="@previewImageUrl"
+                                             alt="Preview"
+                                             class="img-fluid rounded shadow-sm"
+                                             style="max-height: 200px; object-fit: cover;" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <table class="table table-borderless table-sm">
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>📁 نام فایل:</strong></td>
+                                                    <td>@selectedFile.Name</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>📊 حجم:</strong></td>
+                                                    <td>@FormatFileSize(selectedFile.Size)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>🎨 نوع فایل:</strong></td>
+                                                    <td>@selectedFile.ContentType</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <button class="btn btn-primary btn-lg" @onclick="UploadFile" disabled="@isUploading">
+                                        @if (isUploading)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                            <span>در حال آپلود...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>📤 آپلود فایل</span>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(message))
+                    {
+                        <div class="alert @GetAlertClass() alert-dismissible" role="alert">
+                            @message
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     private string message = "";
+    private bool isUploading = false;
+    private IBrowserFile? selectedFile = null;
+    private string previewImageUrl = "";
     private const long MaxFileSize = 50 * 1024 * 1024; // 50MB in bytes
+
+    // Allowed image file types
+    private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+    private readonly string[] allowedMimeTypes = { "image/jpeg", "image/png", "image/gif", "image/webp" };
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
-        var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
         var file = e.File;
-        if (file != null)
-        {
-            try
-            {
-                if (file.Size > MaxFileSize)
-                {
-                    message = $"❌ حجم فایل بیش از حد مجاز است. حداکثر حجم مجاز: {MaxFileSize / 1024 / 1024}MB";
-                    return;
-                }
+        if (file == null) return;
 
-                using var stream = file.OpenReadStream(MaxFileSize);
-                var id = await ProfileImageService.UploadAsync(stream, file.Name, user.Identity?.Name ?? "unknown",CancellationToken.None);
-                message = $"✅ فایل آپلود شد با شناسه: {id}";
-            }
-            catch (Exception ex)
+        // Reset previous state
+        message = "";
+        selectedFile = null;
+        previewImageUrl = "";
+        StateHasChanged();
+
+        try
+        {
+            // Validate file size
+            if (file.Size > MaxFileSize)
             {
-                message = $"❌ خطا در آپلود فایل: {ex.Message}";
+                message = $"❌ حجم فایل بیش از حد مجاز است. حداکثر حجم مجاز: {MaxFileSize / 1024 / 1024}MB";
+                return;
             }
+
+            // Validate file type
+            if (!IsValidImageFile(file))
+            {
+                message = "❌ نوع فایل نامعتبر است. لطفاً یک فایل تصویری آپلود کنید (JPG, PNG, GIF, WebP).";
+                return;
+            }
+
+            // Set selected file and create preview
+            selectedFile = file;
+            await CreateImagePreview();
         }
+        catch (Exception ex)
+        {
+            message = $"❌ خطا در پردازش فایل: {ex.Message}";
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task CreateImagePreview()
+    {
+        previewImageUrl = await JS.InvokeAsync<string>("getUrlFromInput", "fileInput");
+    }
+
+    private async Task UploadFile()
+    {
+        if (selectedFile == null) return;
+
+        isUploading = true;
+        message = "";
+        StateHasChanged();
+
+        try
+        {
+            // Get authenticated user
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (!user.Identity?.IsAuthenticated == true)
+            {
+                message = "❌ کاربر احراز هویت نشده است.";
+                return;
+            }
+
+            // Upload file
+            using var stream = selectedFile.OpenReadStream(MaxFileSize);
+            var uploadId = await ProfileImageService.UploadAsync(
+                stream,
+                selectedFile.Name,
+                user.Identity.Name ?? "unknown",
+                CancellationToken.None);
+
+            message = $"✅ فایل با موفقیت آپلود شد! شناسه: {uploadId}";
+
+            // Reset after successful upload
+            selectedFile = null;
+            previewImageUrl = "";
+        }
+        catch (InvalidOperationException ex)
+        {
+            message = $"❌ خطا در آپلود: {ex.Message}";
+        }
+        catch (IOException ex)
+        {
+            message = $"❌ خطا در خواندن فایل: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            message = $"❌ خطای غیرمنتظره رخ داده است: {ex.Message}";
+        }
+        finally
+        {
+            isUploading = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool IsValidImageFile(IBrowserFile file)
+    {
+        // Check file extension
+        var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+        if (!allowedExtensions.Contains(extension))
+        {
+            return false;
+        }
+
+        // Check MIME type
+        if (!allowedMimeTypes.Contains(file.ContentType.ToLowerInvariant()))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private string GetAlertClass()
+    {
+        return message.StartsWith("✅") ? "alert-success" : "alert-danger";
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
     }
 }
