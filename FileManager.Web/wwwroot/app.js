@@ -1,4 +1,4 @@
-﻿window.downloadFileFromStream = async (fileBytes, fileName) => {
+﻿downloadFileFromStream = async (fileBytes, fileName) => {
     const blob = new Blob([new Uint8Array(fileBytes)]);
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
