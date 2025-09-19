@@ -1,4 +1,4 @@
-﻿using FileManager.Application.ProfileImageServices.Models;
+using FileManager.Application.ProfileImageServices.Models;
 using FileManager.Domain.ProfileImages;
 using FileManager.Domain.Services.Infrastructure.Storage;
 using FileManager.Domain.Services.Infrastructure.Storage.Models;
@@ -25,27 +25,21 @@ public class ProfileImageService : IProfileImageService
         this.fileTypeService = fileTypeService;
     }
 
-    public async Task<List<ProfileImageDto>> GetProfileImagesForUserAsync(string userName, CancellationToken cancellationToken)
+    public async Task<ProfileImageDto?> GetImageByUserNameAsync(string userName, CancellationToken cancellationToken)
     {
-        var profileImages = await profileImageRepository.GetAllAsync(cancellationToken);
-        var userProfileImage = profileImages.Where(x => x.UserName == userName).ToList();
-        var userProfileImageDtos = userProfileImage.Select(x => new ProfileImageDto
+        var img = await profileImageRepository.GetByUserNameAsync(userName,cancellationToken);
+        if (img == null)
+            return null;
+
+        var imageDto = new ProfileImageDto
         {
-            Id = x.Id,
-            Url = GetImageDataUrl(x),
-            Name = x.DatabaseFile?.Name ?? string.Empty,
-            CreatedUtcDate = x.CreatedUtcDate
-        }).ToList();
-        return userProfileImageDtos;
-    }
-
-    public string GetImageDataUrl(ProfileImage profileImage)
-    {
-        if (profileImage?.DatabaseFile == null)
-            throw new ArgumentNullException(nameof(profileImage));
-
-        var mimeType = profileImage.DatabaseFile.ContentType.ToLowerInvariant();
-        return $"data:{mimeType};base64,{Convert.ToBase64String(profileImage.DatabaseFile.Data)}";
+            Id = img.Id,
+            Name = img.DatabaseFile?.Name ?? string.Empty,
+            Data = img.DatabaseFile?.Data ?? Array.Empty<byte>(),
+            Url = GetImageDataUrl(img),
+            CreatedUtcDate = img.CreatedUtcDate
+        };
+        return imageDto;
     }
 
     public async Task<Guid> UploadAsync(
@@ -89,27 +83,12 @@ public class ProfileImageService : IProfileImageService
         }
     }
 
-    public async Task<(byte[] content, string fileName)> DownloadAsync(Guid profileImageId, CancellationToken cancellationToken)
+    private string GetImageDataUrl(ProfileImage profileImage)
     {
-        try
-        {
-            if (profileImageId == Guid.Empty)
-                throw new ArgumentException("Invalid file ID.", nameof(profileImageId));
+        if (profileImage?.DatabaseFile == null)
+            throw new ArgumentNullException(nameof(profileImage));
 
-           var profileImage = await profileImageRepository.GetByIdAsync(profileImageId, cancellationToken);
-            if (profileImage == null || profileImage.DatabaseFile == null)
-                return (Array.Empty<byte>(), string.Empty);
-
-            var databaseFile = await databaseFileStorageService.GetByIdAsync(profileImage.DatabaseFile.Id, cancellationToken);
-            if (databaseFile == null)
-                return (Array.Empty<byte>(), string.Empty);
-
-            return (databaseFile.Data, databaseFile.Name);
-        }
-        catch (Exception)
-        {
-
-            throw;
-        }
+        var mimeType = profileImage.DatabaseFile.ContentType.ToLowerInvariant();
+        return $"data:{mimeType};base64,{Convert.ToBase64String(profileImage.DatabaseFile.Data)}";
     }
 }
