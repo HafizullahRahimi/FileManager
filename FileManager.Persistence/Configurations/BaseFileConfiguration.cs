@@ -9,9 +9,10 @@ internal class BaseFileConfiguration : IEntityTypeConfiguration<BaseFile>
     {
         builder
             .ToTable("Files")
-            .HasDiscriminator<string>("FileType")
-            .HasValue<LocalFile>("LocalFile")
-            .HasValue<DatabaseFile>("DatabaseFile")
-            .HasValue<CloudFile>("CloudFile");
+            .HasDiscriminator<FileStorageType>(f => f.StorageType)
+            .HasValue<LocalFile>(FileStorageType.Local)
+            .HasValue<DatabaseFile>(FileStorageType.Database)
+            .HasValue<CloudFile>(FileStorageType.Cloud)
+            .IsComplete();
     }
 }

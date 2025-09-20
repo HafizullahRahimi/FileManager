@@ -1,7 +1,7 @@
 ﻿namespace FileManager.Domain.Files;
 public enum FileStorageType
 {
-    Local,
-    Database,
-    Cloud,
+    Local = 1,
+    Database = 2,
+    Cloud = 3
 }
