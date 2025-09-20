@@ -29,8 +29,8 @@
                                      alt=""
                                      width="64"
                                      height="64"
-                                     class="rounded-circle " />
-                                <button class="btn btn-link me-3" @onclick="() => DownloadFileAsync(image.Data, image.Name)">📥</button>
+                                     class="rounded-circle " />                              
+                                <a class="btn me-3" href="@image.Url" download="@image.Name">📥</a>
                             }
                             @userName
                         </NavLink>
@@ -268,17 +268,5 @@
             len = len / 1024;
         }
         return $"{len:0.##} {sizes[order]}";
-    }
-
-    private async Task DownloadFileAsync(byte[] data, string name)
-    {
-        try
-        {
-            await JS.InvokeVoidAsync("downloadFileFromStream", data, name);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error downloading file: {ex.Message}");
-        }
     }
 }

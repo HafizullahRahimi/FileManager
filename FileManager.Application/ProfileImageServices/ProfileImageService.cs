@@ -1,4 +1,5 @@
 using FileManager.Application.ProfileImageServices.Models;
+using FileManager.Domain.Files;
 using FileManager.Domain.ProfileImages;
 using FileManager.Domain.Services.Infrastructure.Storage;
 using FileManager.Domain.Services.Infrastructure.Storage.Models;
@@ -27,19 +28,15 @@ public class ProfileImageService : IProfileImageService
 
     public async Task<ProfileImageDto?> GetImageByUserNameAsync(string userName, CancellationToken cancellationToken)
     {
-        var img = await profileImageRepository.GetByUserNameAsync(userName,cancellationToken);
-        if (img == null)
+        var img = await profileImageRepository.GetByUserNameAsync(userName, cancellationToken);
+        if (img?.DatabaseFile == null)
             return null;
 
-        var imageDto = new ProfileImageDto
+        return new ProfileImageDto
         {
-            Id = img.Id,
-            Name = img.DatabaseFile?.Name ?? string.Empty,
-            Data = img.DatabaseFile?.Data ?? Array.Empty<byte>(),
-            Url = GetImageDataUrl(img),
-            CreatedUtcDate = img.CreatedUtcDate
+            Name = img.DatabaseFile.Name,
+            Url = GetImageDataUrl(img.DatabaseFile)
         };
-        return imageDto;
     }
 
     public async Task<Guid> UploadAsync(
@@ -83,12 +80,14 @@ public class ProfileImageService : IProfileImageService
         }
     }
 
-    private string GetImageDataUrl(ProfileImage profileImage)
+    private static string GetImageDataUrl(DatabaseFile databaseFile)
     {
-        if (profileImage?.DatabaseFile == null)
-            throw new ArgumentNullException(nameof(profileImage));
+        if (databaseFile is null || databaseFile.Data is null)
+            return string.Empty;
 
-        var mimeType = profileImage.DatabaseFile.ContentType.ToLowerInvariant();
-        return $"data:{mimeType};base64,{Convert.ToBase64String(profileImage.DatabaseFile.Data)}";
+        var mimeType = databaseFile.ContentType?.ToLowerInvariant() ?? "application/octet-stream";
+        var base64 = Convert.ToBase64String(databaseFile.Data);
+
+        return $"data:{mimeType};base64,{base64}";
     }
 }
